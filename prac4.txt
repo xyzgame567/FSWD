@@ -1,0 +1,54 @@
+servercntrol.aspx
+
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="servercontrols_validation.aspx.cs" Inherits="prac_4.servercontrols_validation" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title></title>
+</head>
+<body>
+    <form id="form1" runat="server">
+        <div>
+            Enter Your Name: <br />
+            <asp:TextBox ID="name" runat="server"></asp:TextBox>
+            <asp:RequiredFieldValidator ID="vname" ControlToValidate="name" runat="server" ErrorMessage="Enter this"></asp:RequiredFieldValidator>
+            <br /><br />
+           
+            Enter Your Age: <br />
+            <asp:TextBox ID="age" runat="server"></asp:TextBox>
+            <asp:RangeValidator ID="vage" ControlToValidate="age" Type="Integer" runat="server" ErrorMessage="Age must between > =18 or < =70 " MinimumValue="18" MaximumValue="70"></asp:RangeValidator>
+            <br /><br />
+           
+            Select Gender :<br />
+            <asp:RadioButtonList ID="gender" runat="server">
+                <asp:ListItem Text="Male" Value="Male"></asp:ListItem>
+                <asp:ListItem Text="Female" Value="Female"></asp:ListItem>
+                <asp:ListItem Text="Others" Value="Others"></asp:ListItem>
+            </asp:RadioButtonList>
+            <br /><br />
+          
+            Enter Contact : <br />
+            <asp:TextBox ID="contact" runat="server"></asp:TextBox>
+            <asp:RangeValidator ID="vcontact" ControlToValidate="contact" runat="server" Type="Double" ErrorMessage="Inavlid number" MinimumValue="1000000000" MaximumValue="9999999999"></asp:RangeValidator>
+            <br /><br />
+
+          
+            Enter Email :<br />
+            <asp:TextBox ID="email" runat="server"></asp:TextBox>
+            <asp:RegularExpressionValidator ID="vemail" ControlToValidate="email" runat="server" ErrorMessage="Invalid email" ValidationExpression="^[^@\s]+@[^@\s]+\.[^@\s]+$"></asp:RegularExpressionValidator>
+            <br /><br />
+
+            <asp:Button ID="Btn1" Text="Submit" OnClick="Btn1_click" runat="server" />
+            <br /><br />
+
+            <asp:ValidationSummary ID="ValidationSummary1" runat="server" HeaderText="Fix the following errors:" ForeColor="Red" />
+
+            <asp:Label ID="lblresult" runat="server" />
+
+
+        </div>
+    </form>
+</body>
+</html>

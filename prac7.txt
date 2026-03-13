@@ -1,0 +1,194 @@
+Default.aspx
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="MongoCRUD.Default" %>
+<!DOCTYPE html>
+<html>
+<head runat="server">   <title>MongoDB CRUD</title> </head>
+<body>
+<form runat="server">
+<h2>Student CRUD using MongoDB</h2>
+Student Name:
+<asp:TextBox ID="txtName" runat="server" /><br /><br />
+Age:
+<asp:TextBox ID="txtAge" runat="server" /><br /><br />
+Email:
+<asp:TextBox ID="txtEmail" runat="server" /><br /><br />
+<asp:HiddenField ID="hfId" runat="server" />
+<asp:Button ID="btnInsert" Text="Insert" runat="server" OnClick="Insert_Click" />
+<asp:Button ID="btnUpdate" Text="Update" runat="server" OnClick="Update_Click" />
+<br /><br />
+<asp:GridView ID="GridView1" runat="server" AutoGenerateColumns="False">
+    <Columns>
+        <asp:BoundField DataField="_id" HeaderText="ID" />
+        <asp:BoundField DataField="Name" HeaderText="Name" />
+        <asp:BoundField DataField="Age" HeaderText="Age" />
+        <asp:BoundField DataField="Email" HeaderText="Email" />
+        <asp:TemplateField>
+            <ItemTemplate>
+                <asp:Button Text="Edit" runat="server"
+                    CommandArgument='<%# Eval("_id") %>' OnClick="Edit_Click" />
+                <asp:Button Text="Delete" runat="server"
+                    CommandArgument='<%# Eval("_id") %>' OnClick="Delete_Click" />
+            </ItemTemplate>
+        </asp:TemplateField>
+    </Columns>
+</asp:GridView>
+</form>
+</body></html>
+
+
+
+
+Default.aspx.cs
+
+using MongoDB.Bson;
+using System;
+using System.Data;
+using System.Web.UI.WebControls;
+
+namespace MongoCRUD
+{
+    public partial class Default : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            if (!IsPostBack)
+                LoadData();
+        }
+
+        void LoadData()
+        {
+            var list = MongoHelper.GetAll();
+            DataTable dt = new DataTable();
+
+            dt.Columns.Add("_id");
+            dt.Columns.Add("Name");
+            dt.Columns.Add("Age");
+            dt.Columns.Add("Email");
+
+            foreach (var i in list)
+            {
+                dt.Rows.Add(
+                    i["_id"].ToString(),
+                    i["Name"].ToString(),
+                    i.Contains("Age") ? i["Age"].ToString() : "",
+                    i["Email"].ToString()
+                );
+            }
+
+            GridView1.DataSource = dt;
+            GridView1.DataBind();
+        }
+
+        protected void Insert_Click(object sender, EventArgs e)
+        {
+            MongoHelper.Insert(
+                txtName.Text,
+                int.Parse(txtAge.Text),
+                txtEmail.Text
+            );
+            Clear();
+            LoadData();
+        }
+
+        protected void Edit_Click(object sender, EventArgs e)
+        {
+            string id = ((Button)sender).CommandArgument;
+            hfId.Value = id;
+
+            var doc = MongoHelper.GetById(id);
+
+            txtName.Text = doc["Name"].ToString();
+            txtAge.Text = doc.Contains("Age") ? doc["Age"].ToString() : "";
+            txtEmail.Text = doc["Email"].ToString();
+        }
+
+        protected void Update_Click(object sender, EventArgs e)
+        {
+            MongoHelper.Update(
+                hfId.Value,
+                txtName.Text,
+                int.Parse(txtAge.Text),
+                txtEmail.Text
+            );
+            Clear();
+            LoadData();
+        }
+
+        protected void Delete_Click(object sender, EventArgs e)
+        {
+            string id = ((Button)sender).CommandArgument;
+            MongoHelper.Delete(id);
+            LoadData();
+        }
+
+        void Clear()
+        {
+            txtName.Text = "";
+            txtAge.Text = "";
+            txtEmail.Text = "";
+            hfId.Value = "";
+        }
+    }
+}
+ 
+
+
+
+
+MongoHelper.cs
+using MongoDB.Bson;
+using MongoDB.Driver;
+using System.Collections.Generic;
+
+public class MongoHelper
+{
+    static IMongoCollection<BsonDocument> GetCollection()
+    {
+        var client = new MongoClient("mongodb://localhost:27017");
+        var db = client.GetDatabase("StudentDB");
+        return db.GetCollection<BsonDocument>("Students");
+    }
+
+    public static void Insert(string name, int age, string email)
+    {
+        var doc = new BsonDocument
+        {
+            { "Name", name },
+            { "Age", age },
+            { "Email", email }
+        };
+        GetCollection().InsertOne(doc);
+    }
+
+    public static List<BsonDocument> GetAll()
+    {
+        return GetCollection().Find(new BsonDocument()).ToList();
+    }
+
+
+    public static BsonDocument GetById(string id)
+    {
+        var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(id));
+        return GetCollection().Find(filter).FirstOrDefault();
+    }
+
+
+    public static void Update(string id, string name, int age, string email)
+    {
+        var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(id));
+        var update = Builders<BsonDocument>.Update
+            .Set("Name", name)
+            .Set("Age", age)
+            .Set("Email", email);
+
+        GetCollection().UpdateOne(filter, update);
+    }
+
+public static void Delete(string id)
+    {
+        var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(id));
+        GetCollection().DeleteOne(filter);
+    }
+}
+
+

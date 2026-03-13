@@ -1,0 +1,119 @@
+MultipleOperations2 : factorial,Mney converter , Q7uadratic quation, Temperature,
+
+
+Operations2.aspx
+
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Operations2.aspx.cs" Inherits="Practical1.Operations2" %>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title>Multiple Operations</title>
+</head>
+<body>
+    <form id="form1" runat="server">
+        <div>
+        <h1>Multiple Operations</h1>
+        Select Operation:
+        <asp:DropDownList ID="ddlOption" runat="server">
+            <asp:ListItem Value="1">Factorial</asp:ListItem>
+            <asp:ListItem Value="2">INR to Dollar</asp:ListItem>
+            <asp:ListItem Value="3">Quadratic Equation</asp:ListItem>
+            <asp:ListItem Value="4">Temperature Conversion</asp:ListItem>
+        </asp:DropDownList>
+        <br /><br />
+        <asp:TextBox ID="userinput" runat="server"></asp:TextBox>
+        <br /><br />
+        <asp:Button 
+            ID="BtnOperation2"
+            runat="server"
+            Text="Calculate"
+            OnClick="BtnOperation2_Click" />
+        <br /><br />
+        <asp:Label ID="lblResult" runat="server"></asp:Label>
+    </div>
+</form>
+</body>
+</html>
+
+
+
+
+
+Operations2.aspx.cs
+
+using System;
+using System.Web.UI;
+namespace Practical1
+{
+public partial class Operations2 : System.Web.UI.Page
+{
+protected void BtnOperation2_Click(object sender, EventArgs e)
+{
+int choice = int.Parse(ddlOption.SelectedValue);
+string input = userinput.Text;
+lblResult.Text = "";
+
+        switch (choice)
+        {
+            case 1:
+                int num = int.Parse(input);
+                long fact = 1;
+
+                for (int i = 1; i <= num; i++)
+                {
+                    fact *= i;
+                }
+
+                lblResult.Text = "Factorial = " + fact;
+                break;
+
+            case 2:
+                double inr = double.Parse(input);
+                double dollarRate = 89.36;
+                double usd = inr / dollarRate;
+
+                lblResult.Text = "USD = " + usd.ToString("0.00");
+                break;
+
+            case 3:
+                string[] coeff = input.Split(',');
+
+                if (coeff.Length != 3)
+                {
+                    lblResult.Text = "Enter input as: a,b,c";
+                    break;
+                }
+                double a = double.Parse(coeff[0]);
+                double b = double.Parse(coeff[1]);
+                double c = double.Parse(coeff[2]);
+                double d = (b * b) - (4 * a * c);
+
+                if (d > 0)
+                {
+                    double r1 = (-b + Math.Sqrt(d)) / (2 * a);
+                    double r2 = (-b - Math.Sqrt(d)) / (2 * a);
+
+                    lblResult.Text = $"Real Roots: {r1} and {r2}";
+                }
+                else if (d == 0)
+                {
+                    double r = -b / (2 * a);
+                    lblResult.Text = "One Real Root: " + r;
+                }
+                else
+                {
+                    lblResult.Text = "Imaginary Roots";
+                }
+                break;
+            case 4:
+                double celsius = double.Parse(input);
+                double fahrenheit = (celsius * 9 / 5) + 32;
+                lblResult.Text = "Fahrenheit = " + fahrenheit;
+                break;
+            default:
+                lblResult.Text = "Invalid Option";
+                break;
+        }
+    }
+}
+}

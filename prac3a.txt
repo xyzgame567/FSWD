@@ -1,0 +1,112 @@
+MultipleOperation:fibonacci,prime,reverse,and vowel
+
+
+MultipleOperations.aspx
+
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="MultipleOperations.aspx.cs" Inherits="prac_3a.MultipleOperations" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title></title>
+</head>
+<body style="margin-bottom: 159px">
+    <form id="form1" runat="server">
+        <div>
+            Select the Options: <br />
+            <asp:DropDownList ID="ddloptions" runat="server" >
+                <asp:ListItem Value="1">Fibonacci Series</asp:ListItem>
+                <asp:ListItem Value="2">Prime Number</asp:ListItem>
+                <asp:ListItem Value="3">Vowels</asp:ListItem>
+                <asp:ListItem Value="4">Reverse the number</asp:ListItem>
+            </asp:DropDownList> <br /><br />
+            Enter the input: <br />
+            <asp:TextBox ID="input" runat="server" /><br /><br />
+
+            <asp:Button ID="Btn1" Text="Click" OnClick="Btn1_click" runat="server" /> <br /><br />
+
+            <asp:Label ID="lblresult" runat="server" />
+
+        </div>
+    </form>
+</body>
+</html>
+
+
+
+
+
+
+
+
+MultipleOperations.aspx.cs
+
+using System;
+using System.Linq;
+
+namespace prac_3a
+{
+    public partial class MultipleOperations : System.Web.UI.Page
+    {
+        protected void Btn1_click(object sender, EventArgs e)
+        {
+            int choice = int.Parse(ddloptions.SelectedValue);
+            string val = input.Text;
+
+            if (string.IsNullOrEmpty(val))
+            {
+                lblresult.Text = "Please enter a value.";
+                return;
+            }
+
+            int num = 0;
+            if ((choice == 1 || choice == 2 || choice == 4) && !int.TryParse(val, out num))
+            {
+                lblresult.Text = "Enter only numbers.";
+                return;
+            }
+
+            switch (choice)
+            {
+                case 1: // Fibonacci
+                    int a = 0, b = 1;
+                    string s = a + " " + b + " ";
+                    for (int i = 3; i <= num; i++)
+                    {
+                        int c = a + b;
+                        s += c + " ";
+                        a = b;
+                        b = c;
+                    }
+                    lblresult.Text = "Fibonacci Series: " + s;
+                    break;
+
+                case 2: // Prime
+                    bool prime = num > 1;
+                    for (int i = 2; i <= num / 2 && prime; i++)
+                        if (num % i == 0) prime = false;
+
+                    lblresult.Text = prime ? "Prime Number" : "Not a Prime Number";
+                    break;
+
+                case 3: // Vowel
+                    char ch = char.ToLower(val[0]);
+                    lblresult.Text = "aeiou".Contains(ch) ? "It is a Vowel" : "It is not a Vowel";
+                    break;
+
+                case 4: // Reverse and Sum
+                    int rev = 0, sum = 0;
+                    while (num > 0)
+                    {
+                        int d = num % 10;
+                        rev = rev * 10 + d;
+                        sum += d;
+                        num /= 10;
+                    }
+                    lblresult.Text = "Reversed = " + rev + " , Sum = " + sum;
+                    break;
+            }
+        }
+    }
+}
